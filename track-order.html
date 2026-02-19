@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Order - GadgetHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0066FF 0%, #00D4FF 100%);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0066FF 0%, #00D4FF 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 102, 255, 0.3);
+        }
+        .tracking-step {
+            transition: all 0.3s ease;
+        }
+        .step-active {
+            color: #0066FF;
+        }
+        .step-completed {
+            color: #10B981;
+        }
+        .step-pending {
+            color: #D1D5DB;
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .carrier-badge {
+            background: linear-gradient(135deg, #0066FF 0%, #00D4FF 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-3">
+                    <i class="fas fa-bolt text-3xl"></i>
+                    <h1 class="text-2xl md:text-3xl font-bold">GadgetHub</h1>
+                </a>
+                <a href="index.html" class="text-white hover:text-cyan-200 flex items-center space-x-2">
+                    <i class="fas fa-home"></i>
+                    <span class="hidden md:block">Back to Store</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <div class="gradient-bg text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <i class="fas fa-shipping-fast text-6xl mb-4 opacity-90"></i>
+            <h2 class="text-3xl md:text-4xl font-bold mb-3">Track Your Order</h2>
+            <p class="text-lg opacity-90">Real-time tracking for your GadgetHub purchase</p>
+            <p class="text-sm opacity-75 mt-2">🌍 Worldwide tracking supported</p>
+        </div>
+    </div>
+
+    <!-- Main Tracking Section -->
+    <div class="container mx-auto px-4 py-10">
+        <div class="max-w-2xl mx-auto">
+
+            <!-- Tracking Form -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+                <h3 class="text-xl font-bold mb-6 text-gray-800">
+                    <i class="fas fa-search text-blue-600 mr-2"></i>
+                    Enter Tracking Details
+                </h3>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">
+                            Tracking Number *
+                        </label>
+                        <input
+                            type="text"
+                            id="trackingNumber"
+                            placeholder="e.g. LP123456789CN, JD0123456789..."
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-gray-800"
+                        />
+                        <p class="text-sm text-gray-500 mt-1">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Your tracking number was sent to your email when your order shipped
+                        </p>
+                    </div>
+
+                    <button
+                        onclick="trackOrder()"
+                        class="btn-primary w-full text-white py-4 rounded-xl font-bold text-lg"
+                    >
+                        <i class="fas fa-search mr-2"></i>
+                        Track My Order
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tracking Result -->
+            <div id="trackingResult" class="hidden">
+
+                <!-- Status Card -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Tracking Result</h3>
+                        <span id="statusBadge" class="px-4 py-2 rounded-full text-white text-sm font-bold carrier-badge">
+                            In Transit
+                        </span>
+                    </div>
+
+                    <!-- Tracking Number Display -->
+                    <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                        <p class="text-sm text-gray-500">Tracking Number</p>
+                        <p id="displayTracking" class="text-lg font-bold text-blue-600"></p>
+                    </div>
+
+                    <!-- Progress Steps -->
+                    <div class="relative mb-8">
+                        <div class="flex justify-between items-center relative">
+
+                            <!-- Line -->
+                            <div class="absolute top-6 left-0 right-0 h-1 bg-gray-200 z-0">
+                                <div id="progressLine" class="h-full bg-blue-500 transition-all duration-500" style="width: 50%"></div>
+                            </div>
+
+                            <!-- Step 1: Order Placed -->
+                            <div class="tracking-step flex flex-col items-center z-10" id="step1">
+                                <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white mb-2">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <p class="text-xs text-center font-semibold text-green-500">Order<br>Placed</p>
+                            </div>
+
+                            <!-- Step 2: Processing -->
+                            <div class="tracking-step flex flex-col items-center z-10" id="step2">
+                                <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white mb-2">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <p class="text-xs text-center font-semibold text-green-500">Order<br>Processed</p>
+                            </div>
+
+                            <!-- Step 3: Shipped -->
+                            <div class="tracking-step flex flex-col items-center z-10" id="step3">
+                                <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white mb-2 pulse-animation">
+                                    <i class="fas fa-shipping-fast"></i>
+                                </div>
+                                <p class="text-xs text-center font-semibold text-blue-500">In<br>Transit</p>
+                            </div>
+
+                            <!-- Step 4: Delivered -->
+                            <div class="tracking-step flex flex-col items-center z-10" id="step4">
+                                <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 mb-2">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <p class="text-xs text-center font-semibold text-gray-400">Delivered</p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Track on 17Track Button -->
+                    <a
+                        id="track17Link"
+                        href="#"
+                        target="_blank"
+                        class="btn-primary w-full text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2"
+                    >
+                        <i class="fas fa-map-marker-alt mr-2"></i>
+                        View Full Tracking Details
+                    </a>
+
+                    <p class="text-center text-sm text-gray-500 mt-3">
+                        <i class="fas fa-external-link-alt mr-1"></i>
+                        Opens detailed tracking on 17Track (worldwide tracking service)
+                    </p>
+                </div>
+
+                <!-- Shipping Info -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                    <h3 class="text-lg font-bold mb-4 text-gray-800">
+                        <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                        Shipping Information
+                    </h3>
+                    <div class="space-y-3 text-sm text-gray-600">
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-clock text-blue-500 mt-1"></i>
+                            <p>International orders typically take <strong>15-30 business days</strong> to arrive</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-map-marker-alt text-blue-500 mt-1"></i>
+                            <p>Tracking updates may take <strong>2-5 days</strong> to appear after shipment</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-globe text-blue-500 mt-1"></i>
+                            <p>We ship to <strong>190+ countries worldwide</strong> across all continents</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-shield-alt text-blue-500 mt-1"></i>
+                            <p>All orders are <strong>fully protected</strong> - contact us if any issues arise</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+                <h3 class="text-xl font-bold mb-6 text-gray-800">
+                    <i class="fas fa-question-circle text-blue-600 mr-2"></i>
+                    Tracking FAQs
+                </h3>
+
+                <div class="space-y-4">
+                    <div class="border-b pb-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-chevron-right text-blue-500 mr-2"></i>
+                            Where is my tracking number?
+                        </h4>
+                        <p class="text-gray-600 text-sm pl-6">Your tracking number was sent to your email address when your order was shipped. Check your inbox and spam folder for an email from GadgetHub with subject "Your order has shipped!"</p>
+                    </div>
+
+                    <div class="border-b pb-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-chevron-right text-blue-500 mr-2"></i>
+                            My tracking shows no updates, why?
+                        </h4>
+                        <p class="text-gray-600 text-sm pl-6">Tracking updates can take 2-5 days to appear after shipment. If your order was just shipped, please check back in a few days. International shipments may have gaps in tracking updates between countries.</p>
+                    </div>
+
+                    <div class="border-b pb-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-chevron-right text-blue-500 mr-2"></i>
+                            How long does delivery take?
+                        </h4>
+                        <p class="text-gray-600 text-sm pl-6">
+                            Delivery times vary by location:<br>
+                            • <strong>Africa:</strong> 15-35 business days<br>
+                            • <strong>Europe/UK:</strong> 10-25 business days<br>
+                            • <strong>Americas:</strong> 15-30 business days<br>
+                            • <strong>Asia/Middle East:</strong> 7-20 business days<br>
+                            • <strong>Australia/Oceania:</strong> 15-30 business days
+                        </p>
+                    </div>
+
+                    <div class="border-b pb-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-chevron-right text-blue-500 mr-2"></i>
+                            My package says delivered but I haven't received it
+                        </h4>
+                        <p class="text-gray-600 text-sm pl-6">Sometimes packages are left with a neighbor, building reception, or at a local post office. Check these locations first. If still not found, contact us immediately at gadgethubstore.ng@gmail.com</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-chevron-right text-blue-500 mr-2"></i>
+                            My order hasn't arrived after 45 days
+                        </h4>
+                        <p class="text-gray-600 text-sm pl-6">If your order hasn't arrived within 45 days of shipping, please contact us. We will investigate with our supplier and arrange a replacement or full refund for you.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Need Help Section -->
+            <div class="bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl p-6 text-white text-center">
+                <h3 class="text-xl font-bold mb-2">Need Help With Your Order?</h3>
+                <p class="opacity-90 mb-6">Our support team is here to help you 7 days a week!</p>
+
+                <div class="flex flex-col md:flex-row gap-4 justify-center">
+                    <a
+                        href="mailto:gadgethubstore.ng@gmail.com"
+                        class="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition"
+                    >
+                        <i class="fas fa-envelope mr-2"></i>
+                        Email Support
+                    </a>
+                    <a
+                        href="https://wa.me/2348136298236"
+                        target="_blank"
+                        class="bg-green-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-600 transition"
+                    >
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        WhatsApp Support
+                    </a>
+                </div>
+
+                <p class="text-sm opacity-75 mt-4">
+                    Please have your order number ready when contacting support
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-16 py-8">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-6">
+                <i class="fas fa-bolt text-3xl text-cyan-400"></i>
+                <h3 class="text-xl font-bold mt-2">GadgetHub</h3>
+                <p class="text-gray-400 mt-2">Your Premium Electronics Store</p>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4 md:gap-6 mb-6 text-sm">
+                <a href="legal-pages.html#terms" class="text-gray-400 hover:text-cyan-400 transition">Terms & Conditions</a>
+                <a href="legal-pages.html#privacy" class="text-gray-400 hover:text-cyan-400 transition">Privacy Policy</a>
+                <a href="legal-pages.html#refund" class="text-gray-400 hover:text-cyan-400 transition">Refund Policy</a>
+                <a href="legal-pages.html#shipping" class="text-gray-400 hover:text-cyan-400 transition">Shipping Policy</a>
+                <a href="legal-pages.html#contact" class="text-gray-400 hover:text-cyan-400 transition">Contact Us</a>
+            </div>
+
+            <div class="text-center">
+                <p class="text-gray-500 text-sm">© 2025 GadgetHub. All rights reserved.</p>
+                <p class="text-gray-600 text-xs mt-2">
+                    🌍 Shipping Worldwide | Secure Payments | 24/7 Support
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function trackOrder() {
+            const trackingNumber = document.getElementById('trackingNumber').value.trim();
+
+            if (!trackingNumber) {
+                alert('Please enter your tracking number!');
+                return;
+            }
+
+            // Show tracking result
+            document.getElementById('trackingResult').classList.remove('hidden');
+
+            // Display tracking number
+            document.getElementById('displayTracking').textContent = trackingNumber;
+
+            // Set 17Track link
+            const trackingUrl = `https://www.17track.net/en/track#nums=${trackingNumber}`;
+            document.getElementById('track17Link').href = trackingUrl;
+
+            // Scroll to result
+            document.getElementById('trackingResult').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Allow Enter key to trigger tracking
+        document.getElementById('trackingNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                trackOrder();
+            }
+        });
+
+        // Check if tracking number is in URL (for direct links)
+        const urlParams = new URLSearchParams(window.location.search);
+        const trackingParam = urlParams.get('tracking');
+        if (trackingParam) {
+            document.getElementById('trackingNumber').value = trackingParam;
+            trackOrder();
+        }
+    </script>
+
+</body>
+</html>
